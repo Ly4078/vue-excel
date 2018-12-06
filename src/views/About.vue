@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>点击导出按钮导出表格到本地</h1>
     <button @click="export2Excel">导出</button>
   </div>
 </template>
