@@ -1,6 +1,7 @@
 module.exports = {
     // 配置 axios 代理请求
     devServer: {
+        port: 3000,
         proxy: {
             '/api': {
                 target: 'https://www.xiang7.net',

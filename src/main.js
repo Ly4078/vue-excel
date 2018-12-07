@@ -5,7 +5,7 @@ import store from './store'
 
 import axios from 'axios'
 
-axios.defaults.headers.post['Content-Type'] = 'application/json';
+// axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 import VueAxios from 'vue-axios'
 

@@ -5,11 +5,12 @@
     <div class="upImg">
       <div>
         修改token
-        <textarea  cols="40" rows="6" v-model="token"></textarea>
+        <textarea cols="40" rows="6" v-model="token"></textarea>
       </div>
       <input class="getfile" type="file" ref="mocover" @change="getFile">
       <img v-show="picUrl" :src="picUrl" alt="上传返回的图片地址">
-      <textarea id="contents" cols="40" rows="3" v-model="picUrl"></textarea><br>
+      <textarea id="contents" cols="40" rows="3" v-model="picUrl"></textarea>
+      <br>
       <button @click="copyUrl">复制</button>
       <span v-show="tag">复制成功</span>
     </div>
@@ -24,7 +25,7 @@
           <textarea id="contents" cols="30" rows="2" v-model="param[key]"></textarea>
         </li>
       </ul>
-      <button @click="over">输入完成提交</button>
+      <button @click="overshop">输入完成提交</button>
     </div>
     <div class="shopcont" v-if="!isshop">
       <ul>
@@ -32,13 +33,19 @@
           {{key}}:
           <textarea id="contents" cols="30" rows="2" v-model="param[key]"></textarea>
         </li>
+        <button @click="addimgs">+</button>
+        <li v-for="(item,index) in imgarr" v-key="index">
+          描述图片{{index+1}}
+          <textarea cols="30" rows="1" v-model="item.url"></textarea>
+        </li>
       </ul>
+
       <button @click="overdish">输入完成提交</button>
     </div>
   </div>
 </template>
 <script>
-import qs from 'qs';
+import qs from "qs";
 export default {
   name: "made",
   data() {
@@ -49,9 +56,14 @@ export default {
       tag: "",
       param: {},
       isshop: true,
+      imgarr: [
+        {
+          url: ""
+        }
+      ],
       shopdata: {
         address: "地址",
-        city: "城市",
+        city: "十堰市",
         doorPic: "门头照",
         healthPic: "健康许可证",
         licensePic: "营业执照",
@@ -61,16 +73,16 @@ export default {
         doorPic: "门头照",
         mobile: " 电话（手机座机皆可）",
         otherService: "其他服务（wifi即可）",
-        shopCate: "(1-5到1-18之间随机取几个)",
-        shopHours:"营业时间(星期一至星期日,10:00至22:00)",
+        shopCate: "(1-5到1-18之间随机取几个)(如：1-5|1-6|1-7)",
+        shopHours: "营业时间(星期一至星期日,10:00至22:00)",
         shopName: "店铺名称",
         userName: " 联系人名称",
-        userId: "商户id"
+        userId: "商户userid"
       },
       dishdata: {
-        skuName: '',
-        skuPic: '',
-        sellPrice: '',
+        skuName: "",
+        skuPic: "",
+        sellPrice: "",
         goodsSkuSpecValue: {
           specValueId: 23
         },
@@ -78,66 +90,75 @@ export default {
           goodsSpuSpec: {
             specId: 7
           },
-          spuName: '', //@skuName
+          spuName: "", //@skuName
           spuType: 10,
-          categoryId: '', // 二级类目id
+          categoryId: "", // 二级类目id
           brandId: 1,
           goodsSpuDesc: {
-            title: '', // @skuName+“描述”
+            title: "", // @skuName+“描述”
             content:
               '<p style="padding:14px;color:#191919;font-size:14px;background:#fff;">鲜美可口</p>< img src="https://xq-1256079679.file.myqcloud.com/13971489895_1544080204_20181206151003826_0.8.jpg"/>' //描述+ img图片地址
           }
         },
-        stockNum: '', // 库存
+        stockNum: "", // 库存
         miniNum: 1,
         expiryDate: 90,
-        shopId: '', // @shopId
+        shopId: "", // @shopId
         sendType: 2,
         singleType: 1,
         actGoodsSkuInVos: [
           {
-            shopId: '', //@shopId
+            shopId: "", //@shopId
             peopleNum: 2,
-            ruleDesc: '每桌限量一份',
+            ruleDesc: "每桌限量一份",
             stockNum: 15, //@stockNum
             goodsPromotionRules: {
-              ruleDesc: '邀请好友秒杀',
+              ruleDesc: "邀请好友秒杀",
               shopId: 35, //@shopId
-              actAmount: '0.01',
+              actAmount: "0.01",
               ruleType: 5
             },
-            categoryId: '', //二级类目id
-            actId: '44'
+            categoryId: "", //二级类目id
+            actId: "44"
           },
           {
             shopId: 35, //@shopId
             peopleNum: 5,
-            ruleDesc: '每桌限量一份',
+            ruleDesc: "每桌限量一份",
             stockNum: 15, //@stockNum
             goodsPromotionRules: {
-              ruleDesc: '邀请好友砍价',
+              ruleDesc: "邀请好友砍价",
               shopId: 35, //@shopId
-              actAmount: '9.00', //砍价菜低价
+              actAmount: "9.00", //砍价菜低价
               ruleType: 4
             },
-            categoryId: '', //二级类目id
-            actId: '41'
+            categoryId: "", //二级类目id
+            actId: "41"
           }
         ]
       },
-      dishdata2:{
-        skuName:'商品名称',
-        skuPic:'商品图片地址',
-        sellPrice:'原价',
-        categoryId:'二级类目id',
-        stockNum:'库存',
-        content:'商品描述',
-        imgs:'',
-        shopId:'商家ID',
+      dishdata2: {
+        skuName: "商品名称",
+        skuPic: "商品图片地址",
+        sellPrice: "原价(数字)",
+        categoryId: "二级类目id(数字)",
+        stockNum: "库存(数字)",
+        shopId: "商家ID(数字)",
+        content: "商品描述"
       }
     };
   },
   methods: {
+    
+    phone:function(){
+      let prefixArray = new Array("130", "131", "132", "133", "135", "137", "138", "170", "187", "189");
+      let i = parseInt(10 * Math.random());
+      let prefix = prefixArray[i];
+      for (let j = 0; j < 8; j++) {
+        prefix = prefix + Math.floor(Math.random() * 10);
+      }
+      return prefix;
+    },
     //选择当前模式
     handUpload: function() {
       this.isshop = !this.isshop;
@@ -145,92 +166,121 @@ export default {
       console.log("isshop:", this.isshop);
       if (this.isshop) {
         this.param = this.shopdata;
+        let _locationX = "",
+          _locationY = "";
+        for (var i = 0; i < 6; i++) {
+          _locationX += Math.floor(Math.random() * 10);
+          _locationY += Math.floor(Math.random() * 10);
+        }
+        _locationX = "110." + _locationX;
+        _locationY = "30." + _locationY;
+        this.param.locationX = _locationX;
+        this.param.locationY = _locationY;
+        this.param.mobile=this.phone();
+        // return
+        
       } else {
         this.param = this.dishdata2;
       }
     },
+    addimgs: function() {
+      let obj = {
+        url: ""
+      };
+      this.imgarr.push(obj);
+    },
     //输入完成，点击提交  商品
-    overdish:function(){
-      let _this=this,data='';
-      console.log('dishdata2',this.dishdata2)
-      this.dishdata.skuName=this.dishdata2.skuName;
-      this.dishdata.skuPic=this.dishdata2.skuPic;
-      this.dishdata.sellPrice=this.dishdata2.sellPrice;
-      this.dishdata.goodsSpuInVo.categoryId=this.dishdata2.categoryId;
-      this.dishdata.goodsSpuInVo.goodsSpuDesc.title='清炒菠菜描述'+this.dishdata2.skuName+'描述';
-      this.dishdata.goodsSpuInVo.goodsSpuDesc.content='<p style="padding:14px;color:#191919;font-size:14px;background:#fff;">'+this.dishdata2.content+'</p>'+this.dishdata2.imgs;
-      this.dishdata.stockNum=this.dishdata2.stockNum;
-      this.dishdata.shopId=this.dishdata2.shopId;
-      this.dishdata.actGoodsSkuInVos[0].shopId=this.dishdata2.shopId;
-      this.dishdata.actGoodsSkuInVos[0].stockNum=this.dishdata2.stockNum;
-      this.dishdata.actGoodsSkuInVos[0].goodsPromotionRules.shopId=this.dishdata2.shopId;
-      this.dishdata.actGoodsSkuInVos[0].categoryId=this.dishdata2.categoryId;
+    overdish: function() {
+      let _this = this,
+        data = "",
+        _imgUrl = "";
+      if (this.imgarr[0].url) {
+        let _imgarr = this.imgarr;
+        for (let i in _imgarr) {
+          let _img = '<img src="' + _imgarr[i].url + '">';
+          _imgUrl += _img;
+        }
+      }
+      this.dishdata.skuName = this.dishdata2.skuName;
+      this.dishdata.skuPic = this.dishdata2.skuPic;
+      this.dishdata.sellPrice = this.dishdata2.sellPrice;
+      this.dishdata.goodsSpuInVo.categoryId = this.dishdata2.categoryId;
+      this.dishdata.goodsSpuInVo.goodsSpuDesc.title =
+        "清炒菠菜描述" + this.dishdata2.skuName + "描述";
+      this.dishdata.goodsSpuInVo.goodsSpuDesc.content =
+        '<p style="padding:14px;color:#191919;font-size:14px;background:#fff;">' +
+        this.dishdata2.content +
+        "</p>" +
+        _imgUrl;
+      this.dishdata.stockNum = this.dishdata2.stockNum;
+      this.dishdata.shopId = this.dishdata2.shopId;
+      this.dishdata.actGoodsSkuInVos[0].shopId = this.dishdata2.shopId;
+      this.dishdata.actGoodsSkuInVos[0].stockNum = this.dishdata2.stockNum;
+      this.dishdata.actGoodsSkuInVos[0].goodsPromotionRules.shopId = this.dishdata2.shopId;
+      this.dishdata.actGoodsSkuInVos[0].categoryId = this.dishdata2.categoryId;
 
-      this.dishdata.actGoodsSkuInVos[1].shopId=this.dishdata2.shopId;
-      this.dishdata.actGoodsSkuInVos[1].stockNum=this.dishdata2.stockNum;
-      this.dishdata.actGoodsSkuInVos[1].goodsPromotionRules.shopId=this.dishdata2.shopId;
-      this.dishdata.actGoodsSkuInVos[1].categoryId=this.dishdata2.categoryId;
+      this.dishdata.actGoodsSkuInVos[1].shopId = this.dishdata2.shopId;
+      this.dishdata.actGoodsSkuInVos[1].stockNum = this.dishdata2.stockNum;
+      this.dishdata.actGoodsSkuInVos[1].goodsPromotionRules.shopId = this.dishdata2.shopId;
+      this.dishdata.actGoodsSkuInVos[1].categoryId = this.dishdata2.categoryId;
 
       // console.log("this.dishdata:",JSON.stringify(this.dishdata))
       // data = qs.stringify(this.dishdata);
-
-     data=JSON.stringify(this.dishdata);
-    //  data = qs.stringify(data);
-console.log('data:',data)
-this.$axios({
-    method: 'post',
-    url:'api/app/goodsSku/addGoodsSkuAndAct',
-    data:data,
-    headers: {
-      Authorization: this.token,
-      'Content-Type':'application/json'
-    }
-}).then((res)=>{
-    console.log('res:',res)
-}); 
-return
-
-      
-      this.$axios.post('api/app/goodsSku/addGoodsSkuAndAct',data, {
+      console.log("(this.dishdata):", this.dishdata);
+      data = JSON.stringify(this.dishdata);
+      //  data = qs.stringify(data);
+      console.log("data:", data);
+      // return
+      this.$axios({
+        method: "post",
+        url: "api/app/goodsSku/addGoodsSkuAndAct",
+        data: data,
         headers: {
           Authorization: this.token,
-         'Content-Type':'application/json'
+          "Content-Type": "application/json"
         }
       }).then(res => {
-        console.log("res:", res);
-        if(res.data.code==0){
+        if (res.data.code == 0) {
           alert("上传成功");
-          _this.param={};
-          if (_this.isshop) {
-            _this.param = _this.shopdata;
-          } else {
-            _this.param = _this.dishdata2;
-          }
+          _this.param = {};
+          _this.param = _this.shopdata;
+        } else {
+          alert("上传失败");
+          alert(res.data.message);
+          _this.param = {};
+          _this.param = _this.shopdata;
         }
       });
     },
     //输入完成，点击提交   店铺
-    over: function() {
-      console.log("param:", this.param,this.isshop);
-      let _this=this,data='';
+    overshop: function() {
+      console.log("param:", this.param, this.isshop);
 
-      data = qs.stringify(this.param);
-      this.$axios.post('api/app/shopEnter/addWithUserId',data, {
-        headers: {
-          Authorization: this.token
-        }
-      }).then(res => {
-        console.log("res:", res);
-        if(res.data.code==0){
-          alert("上传成功");
-          _this.param={};
-          if (_this.isshop) {
+      let _this = this,params = '';
+      
+      // return
+      params = qs.stringify(this.param);
+
+
+      this.$axios
+        .post("api/app/shopEnter/addWithUserId", params, {
+          headers: {
+            Authorization: this.token
+          }
+        })
+        .then(res => {
+          console.log("res:", res);
+          if (res.data.code == 0) {
+            alert("上传成功");
+            _this.param = {};
             _this.param = _this.shopdata;
           } else {
-            _this.param = _this.dishdata;
+            alert("上传失败");
+            alert(res.data.message);
+            // _this.param = {};
+            // _this.param = _this.shopdata;
           }
-        }
-      });
+        });
     },
     //复制图片地址
     copyUrl: function() {
@@ -328,7 +378,19 @@ return
         });
     }
   },
-  created(){
+  created() {
+    // this.param = this.shopdata;
+    let _locationX = "",
+      _locationY = "";
+    for (var i = 0; i < 6; i++) {
+      _locationX += Math.floor(Math.random() * 10);
+      _locationY += Math.floor(Math.random() * 10);
+    }
+    _locationX = "110." + _locationX;
+    _locationY = "30." + _locationY;
+    this.shopdata.locationX = _locationX;
+    this.shopdata.locationY = _locationY;
+    this.shopdata.mobile=this.phone();
     this.param = this.shopdata;
   }
 };
