@@ -62,22 +62,24 @@ export default {
         }
       ],
       shopdata: {
-        address: "地址",
-        city: "十堰市",
+        address: "湖北省-十堰市-茅箭区-香港街丰融超市门口小吃街内",
+        doorPic: "门头照(图片地址)",
+        logoPic: "logo(图片地址)",
         doorPic: "门头照",
-        healthPic: "健康许可证",
-        licensePic: "营业执照",
-        locationX: "",
-        locationY: "",
-        logoPic: "logo",
-        doorPic: "门头照",
-        mobile: " 电话（手机座机皆可）",
-        otherService: "其他服务（wifi即可）",
-        shopCate: "(1-5到1-18之间随机取几个)(如：1-5|1-6|1-7)",
-        shopHours: "营业时间(星期一至星期日,10:00至22:00)",
+        
+        shopCate: "1-",
+        shopHours: "星期一至星期日,10:00至22:00",
         shopName: "店铺名称",
         userName: " 联系人名称",
-        userId: "商户userid"
+        userId: "商户userid",
+         city: "十堰市",
+         mobile: " 电话（手机座机皆可）",
+        otherService: "wifi",
+         healthPic: "https://xqmp4-1256079679.file.myqcloud.com/13297932982_2018120713312321718.jpg",
+        licensePic: "https://xqmp4-1256079679.file.myqcloud.com/13297932982_12321_20181207133727.jpg",
+        locationX: "",
+        locationY: "",
+        businessCate:'其它美食/聚会',
       },
       dishdata: {
         skuName: "",
@@ -160,8 +162,10 @@ export default {
       return prefix;
     },
     //选择当前模式
-    handUpload: function() {
-      this.isshop = !this.isshop;
+    handUpload: function(val) {
+      if(!val){
+        this.isshop = !this.isshop;
+      }
       this.param = {};
       console.log("isshop:", this.isshop);
       if (this.isshop) {
@@ -189,7 +193,7 @@ export default {
       };
       this.imgarr.push(obj);
     },
-    //输入完成，点击提交  商品
+    //商品信息输入完成，点击提交  商品
     overdish: function() {
       let _this = this,
         data = "",
@@ -252,16 +256,10 @@ export default {
         }
       });
     },
-    //输入完成，点击提交   店铺
+    //店铺信息输入完成，点击提交   店铺
     overshop: function() {
-      console.log("param:", this.param, this.isshop);
-
       let _this = this,params = '';
-      
-      // return
       params = qs.stringify(this.param);
-
-
       this.$axios
         .post("api/app/shopEnter/addWithUserId", params, {
           headers: {
@@ -274,6 +272,7 @@ export default {
             alert("上传成功");
             _this.param = {};
             _this.param = _this.shopdata;
+            _this.handUpload(val);
           } else {
             alert("上传失败");
             alert(res.data.message);
