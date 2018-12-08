@@ -62,7 +62,7 @@ export default {
         }
       ],
       shopdata: {
-        address: "湖北省-十堰市-茅箭区-香港街丰融超市门口小吃街内",
+        address: "湖北省-武汉市-洪山区-光谷广场",
         doorPic: "门头照(图片地址)",
         logoPic: "logo(图片地址)",
         doorPic: "门头照",
@@ -72,7 +72,7 @@ export default {
         shopName: "店铺名称",
         userName: " 联系人名称",
         userId: "商户userid",
-         city: "十堰市",
+         city: "武汉市",
          mobile: " 电话（手机座机皆可）",
         otherService: "wifi",
          healthPic: "https://xqmp4-1256079679.file.myqcloud.com/13297932982_2018120713312321718.jpg",
@@ -153,7 +153,7 @@ export default {
   methods: {
     
     phone:function(){
-      let prefixArray = new Array("130", "131", "132", "133", "135", "137", "138", "170", "187", "189");
+      let prefixArray = new Array("130", "131", "132", "133", "135","134", "137", "138", "170", "187", "189","139");
       let i = parseInt(10 * Math.random());
       let prefix = prefixArray[i];
       for (let j = 0; j < 8; j++) {
@@ -162,11 +162,9 @@ export default {
       return prefix;
     },
     //选择当前模式
-    handUpload: function(val) {
-      if(!val){
-        this.isshop = !this.isshop;
-      }
+    handUpload: function() {
       this.param = {};
+      this.isshop=!this.isshop;
       console.log("isshop:", this.isshop);
       if (this.isshop) {
         this.param = this.shopdata;
@@ -176,7 +174,7 @@ export default {
           _locationX += Math.floor(Math.random() * 10);
           _locationY += Math.floor(Math.random() * 10);
         }
-        _locationX = "110." + _locationX;
+        _locationX = "114." + _locationX;
         _locationY = "30." + _locationY;
         this.param.locationX = _locationX;
         this.param.locationY = _locationY;
@@ -272,7 +270,6 @@ export default {
             alert("上传成功");
             _this.param = {};
             _this.param = _this.shopdata;
-            _this.handUpload(val);
           } else {
             alert("上传失败");
             alert(res.data.message);
