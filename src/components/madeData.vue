@@ -50,6 +50,7 @@ export default {
   name: "made",
   data() {
     return {
+      Global_URL:'https://www.xiang7.net/',
       token:
         "Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDQ2ODY3NDYsImNyZWF0ZWQiOjE1NDQwODE5NDY5MDgsInN1YiI6IjEzMjk3OTMyOTgyIn0.r6joWLitjajsM618_gv7pTDoQP1jmeXZvp9Sh4B8eETqzKjTMupq-ZwM3A4fg8w2mi972KOLL9d2Np9V3SCxHw",
       picUrl: "",
@@ -66,7 +67,6 @@ export default {
         doorPic: "门头照(图片地址)",
         logoPic: "logo(图片地址)",
         doorPic: "门头照",
-        
         shopCate: "1-",
         shopHours: "星期一至星期日,10:00至22:00",
         shopName: "店铺名称",
@@ -131,7 +131,7 @@ export default {
             goodsPromotionRules: {
               ruleDesc: "邀请好友砍价",
               shopId: 35, //@shopId
-              actAmount: "9.00", //砍价菜低价
+              actAmount: "", //砍价菜低价
               ruleType: 4
             },
             categoryId: "", //二级类目id
@@ -142,16 +142,16 @@ export default {
       dishdata2: {
         skuName: "商品名称",
         skuPic: "商品图片地址",
-        sellPrice: "原价(数字)",
+        sellPrice: "原价(数字1.5<n)",
         categoryId: "二级类目id(数字)",
-        stockNum: "库存(数字)",
+        stockNum: "库存(数字200<n<9999)",
         shopId: "商家ID(数字)",
-        content: "商品描述"
+        content: "商品描述",
+        actAmount:'砍价菜低价(数字 1.5<n<原价)'
       }
     };
   },
   methods: {
-    
     phone:function(){
       let prefixArray = new Array("130", "131", "132", "133", "135","134", "137", "138", "170", "187", "189","139");
       let i = parseInt(10 * Math.random());
@@ -225,6 +225,7 @@ export default {
       this.dishdata.actGoodsSkuInVos[1].stockNum = this.dishdata2.stockNum;
       this.dishdata.actGoodsSkuInVos[1].goodsPromotionRules.shopId = this.dishdata2.shopId;
       this.dishdata.actGoodsSkuInVos[1].categoryId = this.dishdata2.categoryId;
+      this.dishdata.actGoodsSkuInVos[1].goodsPromotionRules.actAmount = this.dishdata2.actAmount;
 
       // console.log("this.dishdata:",JSON.stringify(this.dishdata))
       // data = qs.stringify(this.dishdata);
@@ -382,7 +383,7 @@ export default {
       _locationX += Math.floor(Math.random() * 10);
       _locationY += Math.floor(Math.random() * 10);
     }
-    _locationX = "110." + _locationX;
+    _locationX = "114." + _locationX;
     _locationY = "30." + _locationY;
     this.shopdata.locationX = _locationX;
     this.shopdata.locationY = _locationY;
