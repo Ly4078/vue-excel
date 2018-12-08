@@ -1,6 +1,5 @@
 module.exports = {
     // 配置 axios 代理请求
-    baseUrl: './',
     devServer: {
         port: 3000,
         proxy: {

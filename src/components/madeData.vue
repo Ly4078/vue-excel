@@ -36,7 +36,7 @@
         <button @click="addimgs">+</button>
         <li v-for="(item,index) in imgarr" v-key="index">
           描述图片{{index+1}}
-          <textarea cols="30" rows="1" v-model="item.url"></textarea>
+          <textarea cols="30" rows="2" v-model="item.url"></textarea>
         </li>
       </ul>
 
@@ -50,16 +50,16 @@ export default {
   name: "made",
   data() {
     return {
-      Global_URL:'https://www.xiang7.net/',
       token:
         "Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDQ2ODY3NDYsImNyZWF0ZWQiOjE1NDQwODE5NDY5MDgsInN1YiI6IjEzMjk3OTMyOTgyIn0.r6joWLitjajsM618_gv7pTDoQP1jmeXZvp9Sh4B8eETqzKjTMupq-ZwM3A4fg8w2mi972KOLL9d2Np9V3SCxHw",
-      picUrl: "",
-      tag: "",
+      picUrl: '',
+      tag: '',
       param: {},
-      isshop: true,
+      isshop: false,
+      isclick: true,
       imgarr: [
         {
-          url: ""
+          url: ''
         }
       ],
       shopdata: {
@@ -67,19 +67,22 @@ export default {
         doorPic: "门头照(图片地址)",
         logoPic: "logo(图片地址)",
         doorPic: "门头照",
+
         shopCate: "1-",
         shopHours: "星期一至星期日,10:00至22:00",
         shopName: "店铺名称",
-        userName: " 联系人名称",
+        userName: "联系人名称",
         userId: "商户userid",
-         city: "武汉市",
-         mobile: " 电话（手机座机皆可）",
+        city: "武汉市",
+        mobile: " 电话（手机座机皆可）",
         otherService: "wifi",
-         healthPic: "https://xqmp4-1256079679.file.myqcloud.com/13297932982_2018120713312321718.jpg",
-        licensePic: "https://xqmp4-1256079679.file.myqcloud.com/13297932982_12321_20181207133727.jpg",
+        healthPic:
+          "https://xqmp4-1256079679.file.myqcloud.com/13297932982_2018120713312321718.jpg",
+        licensePic:
+          "https://xqmp4-1256079679.file.myqcloud.com/13297932982_12321_20181207133727.jpg",
         locationX: "",
         locationY: "",
-        businessCate:'其它美食/聚会',
+        businessCate: "其它美食/聚会"
       },
       dishdata: {
         skuName: "",
@@ -142,18 +145,31 @@ export default {
       dishdata2: {
         skuName: "商品名称",
         skuPic: "商品图片地址",
-        sellPrice: "原价(数字1.5<n)",
-        categoryId: "二级类目id(数字)",
-        stockNum: "库存(数字200<n<9999)",
-        shopId: "商家ID(数字)",
-        content: "商品描述",
-        actAmount:'砍价菜低价(数字 1.5<n<原价)'
+        sellPrice: "原价(数字 N>1.5)",
+        categoryId: "二级类目id(数字 见二级类目表)",
+        stockNum: "库存(数字 200<N<9999)",
+        shopId: "商家ID(数字 见ID表)",
+        actAmount: "商品底价(1.5<N<原价(sellPrice))",
+        content: "商品描述"
       }
     };
   },
   methods: {
-    phone:function(){
-      let prefixArray = new Array("130", "131", "132", "133", "135","134", "137", "138", "170", "187", "189","139");
+    phone: function() {
+      let prefixArray = new Array(
+        "130",
+        "131",
+        "132",
+        "133",
+        "135",
+        "134",
+        "137",
+        "138",
+        "170",
+        "187",
+        "189",
+        "139"
+      );
       let i = parseInt(10 * Math.random());
       let prefix = prefixArray[i];
       for (let j = 0; j < 8; j++) {
@@ -164,7 +180,7 @@ export default {
     //选择当前模式
     handUpload: function() {
       this.param = {};
-      this.isshop=!this.isshop;
+      this.isshop = !this.isshop;
       console.log("isshop:", this.isshop);
       if (this.isshop) {
         this.param = this.shopdata;
@@ -178,9 +194,8 @@ export default {
         _locationY = "30." + _locationY;
         this.param.locationX = _locationX;
         this.param.locationY = _locationY;
-        this.param.mobile=this.phone();
+        this.param.mobile = this.phone();
         // return
-        
       } else {
         this.param = this.dishdata2;
       }
@@ -196,6 +211,13 @@ export default {
       let _this = this,
         data = "",
         _imgUrl = "";
+
+      if (!this.isclick) {
+        alert("数据正在上传中，请等待成功或失败提示后再点提交");
+        return;
+      }
+      this.isclick = false;
+
       if (this.imgarr[0].url) {
         let _imgarr = this.imgarr;
         for (let i in _imgarr) {
@@ -227,13 +249,8 @@ export default {
       this.dishdata.actGoodsSkuInVos[1].categoryId = this.dishdata2.categoryId;
       this.dishdata.actGoodsSkuInVos[1].goodsPromotionRules.actAmount = this.dishdata2.actAmount;
 
-      // console.log("this.dishdata:",JSON.stringify(this.dishdata))
-      // data = qs.stringify(this.dishdata);
-      console.log("(this.dishdata):", this.dishdata);
       data = JSON.stringify(this.dishdata);
-      //  data = qs.stringify(data);
-      console.log("data:", data);
-      // return
+
       this.$axios({
         method: "post",
         url: "api/app/goodsSku/addGoodsSkuAndAct",
@@ -243,22 +260,30 @@ export default {
           "Content-Type": "application/json"
         }
       }).then(res => {
+        _this.isclick = true;
         if (res.data.code == 0) {
           alert("上传成功");
           _this.param = {};
-          _this.param = _this.shopdata;
+          _this.param = _this.dishdata2;
         } else {
           alert("上传失败");
           alert(res.data.message);
-          _this.param = {};
-          _this.param = _this.shopdata;
         }
       });
     },
     //店铺信息输入完成，点击提交   店铺
     overshop: function() {
-      let _this = this,params = '';
+      this.isclick = false;
+      let _this = this,
+        params = "";
+
+      if (!this.isclick) {
+        alert("数据正在上传中，请等待成功或失败提示后再点提交");
+        return;
+      }
+
       params = qs.stringify(this.param);
+
       this.$axios
         .post("api/app/shopEnter/addWithUserId", params, {
           headers: {
@@ -267,6 +292,7 @@ export default {
         })
         .then(res => {
           console.log("res:", res);
+          _this.isclick = true;
           if (res.data.code == 0) {
             alert("上传成功");
             _this.param = {};
@@ -274,8 +300,6 @@ export default {
           } else {
             alert("上传失败");
             alert(res.data.message);
-            // _this.param = {};
-            // _this.param = _this.shopdata;
           }
         });
     },
@@ -377,18 +401,22 @@ export default {
   },
   created() {
     // this.param = this.shopdata;
-    let _locationX = "",
-      _locationY = "";
-    for (var i = 0; i < 6; i++) {
-      _locationX += Math.floor(Math.random() * 10);
-      _locationY += Math.floor(Math.random() * 10);
+    if (this.isshop) {
+      let _locationX = "",
+        _locationY = "";
+      for (var i = 0; i < 6; i++) {
+        _locationX += Math.floor(Math.random() * 10);
+        _locationY += Math.floor(Math.random() * 10);
+      }
+      _locationX = "110." + _locationX;
+      _locationY = "30." + _locationY;
+      this.shopdata.locationX = _locationX;
+      this.shopdata.locationY = _locationY;
+      this.shopdata.mobile = this.phone();
+      this.param = this.shopdata;
+    } else {
+      this.param = this.dishdata2;
     }
-    _locationX = "114." + _locationX;
-    _locationY = "30." + _locationY;
-    this.shopdata.locationX = _locationX;
-    this.shopdata.locationY = _locationY;
-    this.shopdata.mobile=this.phone();
-    this.param = this.shopdata;
   }
 };
 </script>
