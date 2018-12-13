@@ -1,7 +1,11 @@
 <template>
   <div class="made">
-    <h3>数据制造</h3>
+    <!-- <h3>数据制造</h3> -->
     <!-- <button @click="httpsAixos">click</button> -->
+    <div class="sel">
+      <button @click="handUpload" :class="isshop ? 'resbut' : ''">上传店铺</button>
+      <button @click="handUpload" :class="isshop ? '' : 'resbut'">上传商品</button>
+    </div>
     <div class="upImg">
       <div>
         修改token
@@ -14,10 +18,7 @@
       <button @click="copyUrl">复制</button>
       <span v-show="tag">复制成功</span>
     </div>
-    <div class="sel">
-      <button @click="handUpload" :class="isshop ? 'resbut' : ''">上传店铺</button>
-      <button @click="handUpload" :class="isshop ? '' : 'resbut'">上传商品</button>
-    </div>
+    
     <div class="shopcont" v-if="isshop">
       <ul>
         <li v-for="(item,key) in param" v-key="key">
@@ -35,12 +36,18 @@
         </li>
         <button @click="addimgs">+</button>
         <li v-for="(item,index) in imgarr" v-key="index">
-          描述图片{{index+1}}
-          <textarea cols="30" rows="2" v-model="item.url"></textarea>
+          商品描述图片{{index+1}}
+          <textarea cols="30" rows="2" v-model="item.url" placeholder="图片链接地址"></textarea>
         </li>
       </ul>
 
       <button @click="overdish">输入完成提交</button>
+    </div>
+
+    <div class="shopright">
+      <img v-if="dishdata2.skuPic" :src="dishdata2.skuPic" alt="">
+      <img v-if="shopdata.doorPic!='门头照(图片地址)'" :src="shopdata.doorPic" alt="门头照图片地址错误"><br><br><br>
+      <img v-if="shopdata.logoPic!='logo(图片地址)'" :src="shopdata.logoPic" alt="logo图片地址错误">
     </div>
   </div>
 </template>
@@ -50,8 +57,7 @@ export default {
   name: "made",
   data() {
     return {
-      token:
-        "Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDQ2ODY3NDYsImNyZWF0ZWQiOjE1NDQwODE5NDY5MDgsInN1YiI6IjEzMjk3OTMyOTgyIn0.r6joWLitjajsM618_gv7pTDoQP1jmeXZvp9Sh4B8eETqzKjTMupq-ZwM3A4fg8w2mi972KOLL9d2Np9V3SCxHw",
+      token:'Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDQ5MjE5MDEsImNyZWF0ZWQiOjE1NDQzMTcxMDEwODcsInN1YiI6IjEzOTcxNDg5ODk1In0.a_8p2hwkRQns3xpOtUym07pOXpENt6CfWFGmTPdz-MAS79dJPTzx99Ztcy3jCAjzlSc9dA3jXX-CavUuMKrnaw',
       picUrl: '',
       tag: '',
       param: {},
@@ -63,18 +69,16 @@ export default {
         }
       ],
       shopdata: {
-        address: "湖北省-武汉市-洪山区-光谷广场",
+        address: "湖北省-武汉市-江汉区-",
         doorPic: "门头照(图片地址)",
         logoPic: "logo(图片地址)",
-        doorPic: "门头照",
-
         shopCate: "1-",
         shopHours: "星期一至星期日,10:00至22:00",
         shopName: "店铺名称",
         userName: "联系人名称",
         userId: "商户userid",
-        city: "武汉市",
         mobile: " 电话（手机座机皆可）",
+        city: "武汉市",
         otherService: "wifi",
         healthPic:
           "https://xqmp4-1256079679.file.myqcloud.com/13297932982_2018120713312321718.jpg",
@@ -150,7 +154,7 @@ export default {
         stockNum: "库存(数字 200<N<9999)",
         shopId: "商家ID(数字 见ID表)",
         actAmount: "商品底价(1.5<N<原价(sellPrice))",
-        content: "商品描述"
+        content: "商品描述(文字，商品简介或商品名称)"
       }
     };
   },
@@ -183,6 +187,7 @@ export default {
       this.isshop = !this.isshop;
       console.log("isshop:", this.isshop);
       if (this.isshop) {
+        
         this.param = this.shopdata;
         let _locationX = "",
           _locationY = "";
@@ -194,6 +199,8 @@ export default {
         _locationY = "30." + _locationY;
         this.param.locationX = _locationX;
         this.param.locationY = _locationY;
+        
+
         this.param.mobile = this.phone();
         // return
       } else {
@@ -229,8 +236,9 @@ export default {
       this.dishdata.skuPic = this.dishdata2.skuPic;
       this.dishdata.sellPrice = this.dishdata2.sellPrice;
       this.dishdata.goodsSpuInVo.categoryId = this.dishdata2.categoryId;
+      this.dishdata.goodsSpuInVo.spuName = this.dishdata2.skuName;
       this.dishdata.goodsSpuInVo.goodsSpuDesc.title =
-        "清炒菠菜描述" + this.dishdata2.skuName + "描述";
+         this.dishdata2.skuName + "描述";
       this.dishdata.goodsSpuInVo.goodsSpuDesc.content =
         '<p style="padding:14px;color:#191919;font-size:14px;background:#fff;">' +
         this.dishdata2.content +
@@ -273,15 +281,13 @@ export default {
     },
     //店铺信息输入完成，点击提交   店铺
     overshop: function() {
-      this.isclick = false;
       let _this = this,
         params = "";
-
       if (!this.isclick) {
         alert("数据正在上传中，请等待成功或失败提示后再点提交");
         return;
       }
-
+      this.isclick = false;
       params = qs.stringify(this.param);
 
       this.$axios
@@ -402,13 +408,21 @@ export default {
   created() {
     // this.param = this.shopdata;
     if (this.isshop) {
+      let Service = new Array('包间','停车场'),_service='';
+        let i = parseInt(2 * Math.random());
+          console.log('Service:',Service)
+        console.log('i:',i)
+        _service ='wifi,'+ Service[i];
+         console.log('_service:',_service)
+        this.shopdata.otherService=_service;
+         console.log('_service:',this.shopdata.otherService)
       let _locationX = "",
         _locationY = "";
       for (var i = 0; i < 6; i++) {
         _locationX += Math.floor(Math.random() * 10);
         _locationY += Math.floor(Math.random() * 10);
       }
-      _locationX = "110." + _locationX;
+      _locationX = "114." + _locationX;
       _locationY = "30." + _locationY;
       this.shopdata.locationX = _locationX;
       this.shopdata.locationY = _locationY;
@@ -423,17 +437,16 @@ export default {
 <style lang="less">
 .made {
   .upImg {
-    width: 450px;
+    width: 400px;
     min-height: 300px;
     border: 1px solid red;
     float: left;
+    margin-right: 10px;
     img {
       width: 200px;
     }
   }
   .sel {
-    float: left;
-    width: 100px;
     border: 1px solid pink;
     .resbut {
       background: red;
@@ -448,6 +461,7 @@ export default {
     min-height: 400px;
     float: left;
     border: 2px solid blueviolet;
+    margin-right: 10px;
     ul {
       float: left;
       li {
@@ -455,6 +469,12 @@ export default {
         list-style-type: none;
         height: 40px;
       }
+    }
+  }
+  .shopright{
+    float: left;
+    img{
+       width: 200px;
     }
   }
 }
