@@ -1,7 +1,7 @@
 <template>
   <div class="made">
     <!-- <h3>数据制造</h3> -->
-    <!-- <button @click="httpsAixos">click</button> -->
+    <button @click="httpsAixos">click</button>
     <div class="sel">
       <button @click="handUpload" :class="isshop ? 'resbut' : ''">上传店铺</button>
       <button @click="handUpload" :class="isshop ? '' : 'resbut'">上传商品</button>
@@ -18,24 +18,45 @@
       <button @click="copyUrl">复制</button>
       <span v-show="tag">复制成功</span>
     </div>
-    
-    <div class="shopcont" v-if="isshop">
+    <!--  -->
+<div class="shopcont">
+      商品说明：<textarea id="contents" cols="30" rows="4" v-model="ptitle"></textarea>
       <ul>
-        <li v-for="(item,key) in param" v-key="key">
+        <li v-for="(item,key) in ppimgs" :key="key">
+          {{key}}:
+          <textarea id="contents" cols="30" rows="2" v-model="ppimgs[key].url"></textarea>
+        </li><button @click="addimgurl">+</button>
+         <button @click="wancheng">完成</button>
+      </ul>
+      
+      <textarea id="contents" cols="40" rows="6" v-model="htmlyu"></textarea>
+    
+    </div>
+
+
+
+
+
+
+
+    <!--  -->
+    <div class="shopcont" v-show="false" v-if="isshop">
+      <ul>
+        <li v-for="(item,key) in param" :key="key">
           {{key}}:
           <textarea id="contents" cols="30" rows="2" v-model="param[key]"></textarea>
         </li>
       </ul>
       <button @click="overshop">输入完成提交</button>
     </div>
-    <div class="shopcont" v-if="!isshop">
-      <ul>
-        <li v-for="(item,key) in param" v-key="key">
+    <div class="shopcont" v-show="false" v-if="!isshop">
+      <ul >
+        <li v-for="(item,key) in param" :key="key">
           {{key}}:
           <textarea id="contents" cols="30" rows="2" v-model="param[key]"></textarea>
         </li>
         <button @click="addimgs">+</button>
-        <li v-for="(item,index) in imgarr" v-key="index">
+        <li v-for="(item,index) in imgarr" :key="index">
           商品描述图片{{index+1}}
           <textarea cols="30" rows="2" v-model="item.url" placeholder="图片链接地址"></textarea>
         </li>
@@ -44,7 +65,7 @@
       <button @click="overdish">输入完成提交</button>
     </div>
 
-    <div class="shopright">
+    <div class="shopright" v-show="false">
       <img v-if="dishdata2.skuPic" :src="dishdata2.skuPic" alt="">
       <img v-if="shopdata.doorPic!='门头照(图片地址)'" :src="shopdata.doorPic" alt="门头照图片地址错误"><br><br><br>
       <img v-if="shopdata.logoPic!='logo(图片地址)'" :src="shopdata.logoPic" alt="logo图片地址错误">
@@ -57,10 +78,15 @@ export default {
   name: "made",
   data() {
     return {
-      token:'Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDQ5MjE5MDEsImNyZWF0ZWQiOjE1NDQzMTcxMDEwODcsInN1YiI6IjEzOTcxNDg5ODk1In0.a_8p2hwkRQns3xpOtUym07pOXpENt6CfWFGmTPdz-MAS79dJPTzx99Ztcy3jCAjzlSc9dA3jXX-CavUuMKrnaw',
+      token:'Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1NDU3MTY0NTEsImNyZWF0ZWQiOjE1NDUxMTE2NTEzMTAsInN1YiI6IjEzMjk3OTMyOTgyIn0.d4ga0eZozB3haIOsXAbAcS_Ko6mUv_26Lmit7IB_KnSUN4TF2jGlWkuE1q6I25i35TGOR33sPA-EmFKHhYUCQw',
       picUrl: '',
       tag: '',
       param: {},
+      ptitle:'',
+      ppimgs:[{
+        url:''
+      }],
+      htmlyu:'',
       isshop: false,
       isclick: true,
       imgarr: [
@@ -159,6 +185,34 @@ export default {
     };
   },
   methods: {
+    addimgurl:function(){
+      let obj={
+        url:''
+      }
+      this.ppimgs.push(obj)
+    },
+        wancheng:function(){
+      let strimg='',strp='';
+      if(this.ptitle){
+        strp='<p style="padding:14px;color:#191919;font-size:14px;background:#fff;">'+this.ptitle+'</p>';
+      }else{
+        strp='<p style="padding:14px;color:#191919;font-size:14px;background:#fff;"></p>';
+      }
+      if(this.ppimgs && this.ppimgs.length>0){
+        for(let i in this.ppimgs){
+          console.log("urlLL：",this.ppimgs[i])
+          if(this.ppimgs[i].url){
+            let url ='<img src="'+this.ppimgs[i].url+'"/>';
+            strimg+=url;
+          }else{
+            alert("图片地址错误")
+          }
+        }
+        this.htmlyu=strp+strimg;
+      }else{
+        alert("请输入图片地址")
+      }
+    },
     phone: function() {
       let prefixArray = new Array(
         "130",
@@ -289,25 +343,22 @@ export default {
       }
       this.isclick = false;
       params = qs.stringify(this.param);
-
-      this.$axios
-        .post("api/app/shopEnter/addWithUserId", params, {
-          headers: {
-            Authorization: this.token
-          }
-        })
-        .then(res => {
-          console.log("res:", res);
-          _this.isclick = true;
-          if (res.data.code == 0) {
-            alert("上传成功");
-            _this.param = {};
-            _this.param = _this.shopdata;
-          } else {
-            alert("上传失败");
-            alert(res.data.message);
-          }
-        });
+      this.$axios.post("api/app/shopEnter/addWithUserId", params, {
+        headers: {
+          Authorization: this.token
+        }
+      }).then(res => {
+        console.log("res:", res);
+        _this.isclick = true;
+        if (res.data.code == 0) {
+          alert("上传成功");
+          _this.param = {};
+          _this.param = _this.shopdata;
+        } else {
+          alert("上传失败");
+          alert(res.data.message);
+        }
+      });
     },
     //复制图片地址
     copyUrl: function() {
@@ -477,5 +528,6 @@ export default {
        width: 200px;
     }
   }
+
 }
 </style>

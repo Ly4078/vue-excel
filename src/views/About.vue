@@ -1,7 +1,28 @@
 <template>
   <div class="about">
-    <h1>点击导出按钮导出表格到本地</h1>
-    <button @click="export2Excel">导出</button>
+    <div class="navleft">
+      <ul>
+        <li class="lis">
+          <router-link to="/">类目一</router-link>
+        </li>
+        <li class="lis">
+          <router-link to="/">类目二</router-link>
+        </li>
+        <li class="lis">
+          <router-link to="/">类目三</router-link>
+        </li>
+        <li class="lis">
+          <router-link to="/">类目四</router-link>
+        </li>
+        <li class="lis">
+          <router-link to="/">类目五</router-link>
+        </li>
+      </ul>
+    </div>
+    <div class="page">
+      <h1>点击导出按钮导出表格到本地</h1>
+      <button @click="export2Excel">导出</button>
+    </div>
   </div>
 </template>
 <script>
@@ -31,16 +52,14 @@ export default {
   },
   methods: {
     formatJson(filterVal, jsonData) {
-      console.log("filterVal:",filterVal)
-       console.log("jsonData:",jsonData)
+      console.log("filterVal:", filterVal);
+      console.log("jsonData:", jsonData);
       return jsonData.map(v => filterVal.map(j => v[j]));
     },
     export2Excel() {
-      console.log("export2Excel")
+      console.log("export2Excel");
       require.ensure([], () => {
-        const {
-          export_json_to_excel
-        } = require("../vendor/Export2Excel");
+        const { export_json_to_excel } = require("../vendor/Export2Excel");
         const tHeader = [
           "商品名称",
           "商品货号",
@@ -57,9 +76,9 @@ export default {
           "salesnums",
           "sharenums"
         ];
-         console.log("filterVal:",filterVal)
+        console.log("filterVal:", filterVal);
         const list = this.list;
-        console.log("list:",list)
+        console.log("list:", list);
         const data = this.formatJson(filterVal, list);
         export_json_to_excel(tHeader, data, "商品管理列表");
       });
@@ -70,3 +89,35 @@ export default {
   }
 };
 </script>
+<style lang="less">
+.about {
+  .navleft{
+    float: left;
+    width: 15%;
+    border: 1px solid red;
+    ul{
+      width: 100%;
+      li{
+        width: 60%;
+        border-bottom: 1px solid #ebebeb;
+        text-align: center;
+        line-height: 40px;
+        margin: 5px 0 ;
+        a{
+          display: block;
+          width: 100%;
+          height: 100%;
+          background: red;
+        }
+      }
+    }
+  }
+  .page{
+    background: pink;
+    float: left;
+  }
+  li {
+    list-style: none;
+  }
+}
+</style>
